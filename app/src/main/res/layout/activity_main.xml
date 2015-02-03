@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageButton"
-        android:src="@drawable/faceRec"
+        android:src="@drawable/face_rec"
         android:onClick="startFaceRecognition"
         android:layout_below="@+id/main_txt"
         android:layout_centerHorizontal="true" />
@@ -25,6 +25,6 @@
         android:layout_below="@+id/imageButton"
         android:layout_centerHorizontal="true"
         android:onClick="startVideoProcessing"
-        android:src="@drawable/videoProcessing" />
+        android:src="@drawable/video_processing" />
 
 </RelativeLayout>

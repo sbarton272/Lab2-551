@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Lab2 18-551</string>
+    <string name="main_text">Face recognition and video filtering provided by Lu, Barton &amp; Co.</string>
+    <string name="hello_world">Hello world!</string>
+
+</resources>

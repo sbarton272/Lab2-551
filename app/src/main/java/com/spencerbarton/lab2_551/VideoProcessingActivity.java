@@ -8,12 +8,13 @@ import android.view.WindowManager;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 
 
-public class VideoProcessingActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class VideoProcessingActivity extends Activity implements CvCameraViewListener2 {
     private static final String TAG = "VideoProcessingActivity";
     private CameraBridgeViewBase mOpenCvCameraView;
 

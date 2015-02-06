@@ -21,16 +21,13 @@ public class VideoProcessingActivity extends Activity {
     private static final int mPreviewSizeHeight = 480;
     private CameraProcessing mCamProcessing;
 
-    /**
-     * Called when the activity is first created.
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_processing);
     }
 
     private void createPostOpenCv() {
+        setContentView(R.layout.activity_video_processing);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.camera_preview);
         mCamProcessing = new CameraProcessing(surfaceView.getHolder(), mPreviewSizeWidth, mPreviewSizeHeight);
     }

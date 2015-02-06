@@ -48,6 +48,10 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
 
     public CameraProcessing(SurfaceHolder surfaceHolder, int PreviewlayoutWidth, int PreviewlayoutHeight)
     {
+        // Install viewing callback
+        surfaceHolder.addCallback(this);
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
         mPreviewSizeWidth = PreviewlayoutWidth;
         mPreviewSizeHeight = PreviewlayoutHeight;
         mSurfaceHolder = surfaceHolder;
@@ -65,9 +69,11 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
     {
         mCamera = Camera.open();
         try {
+
             // If did not set the SurfaceHolder, the preview area will be black.
-            mCamera.setPreviewDisplay(surfaceHolder);
+            mCamera.setPreviewDisplay(mSurfaceHolder);
             mCamera.setPreviewCallback(this);
+
         } catch (IOException e) {
             mCamera.release();
             mCamera = null;

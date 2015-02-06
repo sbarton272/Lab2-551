@@ -1,6 +1,7 @@
 package com.spencerbarton.lab2_551;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
@@ -8,7 +9,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.widget.ImageView;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
@@ -21,14 +21,17 @@ import java.io.IOException;
  * Created by Spencer on 2/5/2015.
  * From http://ibuzzlog.blogspot.com/2012/08/how-to-do-real-time-image-processing-in.html
  */
-public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCallback {
+public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewCallback {
 
+    // TODO camera data type may not be correct
+    private static final String TAG = "CameraProcessing";
+    private static final int VALID_VID_FORMAT = ImageFormat.NV21;
     private static final int MATRIX_DATA_TYPE = CvType.CV_8UC3;
     private static final int CANNY_THRESH_1 = 300;
     private static final int CANNY_THRESH_2 = 600;
     private static final int CANNY_SOBEL_APERTURE_SZ = 5;
     private Camera mCamera = null;
-    private ImageView mCameraPreview = null;
+    private SurfaceHolder mSurfaceHolder = null;
     private Bitmap mDisplayBitmap = null;
     private byte[] mFrameData = null;
     private Mat mImgMat = null;
@@ -39,35 +42,48 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
     private boolean mProcessing = false;
     private Handler mHandler = new Handler(Looper.getMainLooper());
 
-    public CameraPreview(int PreviewlayoutWidth, int PreviewlayoutHeight,
-                         ImageView CameraPreview)
+    /*==============================================
+      Constructor
+      ==============================================*/
+
+    public CameraProcessing(SurfaceHolder surfaceHolder, int PreviewlayoutWidth, int PreviewlayoutHeight)
     {
         mPreviewSizeWidth = PreviewlayoutWidth;
         mPreviewSizeHeight = PreviewlayoutHeight;
-        mCameraPreview = CameraPreview;
+        mSurfaceHolder = surfaceHolder;
         mDisplayBitmap = Bitmap.createBitmap(mPreviewSizeWidth, mPreviewSizeHeight, Bitmap.Config.ARGB_8888);
         mImgMat = new Mat(mPreviewSizeWidth, mPreviewSizeHeight, MATRIX_DATA_TYPE);
         mProcessedImgMat = new Mat(mPreviewSizeWidth, mPreviewSizeHeight, MATRIX_DATA_TYPE);
     }
 
+    /*==============================================
+      Surface Management
+      ==============================================*/
+
     @Override
-    public void onPreviewFrame(byte[] arg0, Camera arg1)
+    public void surfaceCreated(SurfaceHolder surfaceHolder)
     {
-        // At preview mode, the frame data will push to here.
-        if (mImageFormat == ImageFormat.NV21)
+        mCamera = Camera.open();
+        try
         {
-            //We only accept the NV21(YUV420) format.
-            if ( !mProcessing )
-            {
-                mFrameData = arg0;
-                mHandler.post(DoImageProcessing);
-            }
+            // If did not set the SurfaceHolder, the preview area will be black.
+            mCamera.setPreviewDisplay(surfaceHolder);
+            mCamera.setPreviewCallback(this);
+        }
+        catch (IOException e)
+        {
+            mCamera.release();
+            mCamera = null;
         }
     }
 
-    public void onPause()
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder)
     {
+        mCamera.setPreviewCallback(null);
         mCamera.stopPreview();
+        mCamera.release();
+        mCamera = null;
     }
 
     @Override
@@ -86,42 +102,21 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
         mCamera.startPreview();
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder arg0)
-    {
-        mCamera = Camera.open();
-        try
-        {
-            // If did not set the SurfaceHolder, the preview area will be black.
-            mCamera.setPreviewDisplay(arg0);
-            mCamera.setPreviewCallback(this);
-        }
-        catch (IOException e)
-        {
-            mCamera.release();
-            mCamera = null;
-        }
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder arg0)
-    {
-        mCamera.setPreviewCallback(null);
-        mCamera.stopPreview();
-        mCamera.release();
-        mCamera = null;
-    }
+    /*==============================================
+      Image Processing
+      ==============================================*/
 
     private Runnable DoImageProcessing = new Runnable()
     {
         public void run()
         {
-            Log.i("MyRealTimeImageProcessing", "DoImageProcessing():");
+            Log.i(TAG, "DoImageProcessing");
             mProcessing = true;
             imageProcessing(mPreviewSizeWidth, mPreviewSizeHeight, mFrameData, mDisplayBitmap);
 
             // Set to view
-            mCameraPreview.setImageBitmap(mDisplayBitmap);
+            // TODO problem about where to display
+            tryDrawing(mDisplayBitmap);
             mProcessing = false;
         }
     };
@@ -129,7 +124,6 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
     public void imageProcessing(int width, int height, byte[] frameData, Bitmap bitmap) {
         // Read in frame data and output in pixels
 
-        // TODO thresholds as vars
         // Copy over data
         mImgMat.put(0, 0, frameData);
 
@@ -140,4 +134,42 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
         // Put into output format
         Utils.matToBitmap(mProcessedImgMat, bitmap);
     }
+
+    // http://stackoverflow.com/questions/10931419/android-drawing-on-surfaceview-and-canvas
+    private void tryDrawing(Bitmap bitmap) {
+        Log.i(TAG, "Trying to draw...");
+
+        Canvas canvas = mSurfaceHolder.lockCanvas();
+        if (canvas == null) {
+            Log.e(TAG, "Cannot draw onto the canvas as it's null");
+        } else {
+            canvas.drawBitmap(bitmap,0,0,null);
+            mSurfaceHolder.unlockCanvasAndPost(canvas);
+        }
+    }
+
+
+    /*==============================================
+      Other
+      ==============================================*/
+
+    @Override
+    public void onPreviewFrame(byte[] arg0, Camera arg1)
+    {
+        // At preview mode, the frame data will push to here.
+        if (mImageFormat == VALID_VID_FORMAT)
+        {
+            if ( !mProcessing )
+            {
+                mFrameData = arg0;
+                mHandler.post(DoImageProcessing);
+            }
+        }
+    }
+
+    public void onPause()
+    {
+        mCamera.stopPreview();
+    }
+
 }

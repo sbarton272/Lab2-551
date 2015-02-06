@@ -64,14 +64,11 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
     public void surfaceCreated(SurfaceHolder surfaceHolder)
     {
         mCamera = Camera.open();
-        try
-        {
+        try {
             // If did not set the SurfaceHolder, the preview area will be black.
             mCamera.setPreviewDisplay(surfaceHolder);
             mCamera.setPreviewCallback(this);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             mCamera.release();
             mCamera = null;
         }
@@ -116,7 +113,7 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
 
             // Set to view
             // TODO problem about where to display
-            tryDrawing(mDisplayBitmap);
+            drawBitmap(mDisplayBitmap);
             mProcessing = false;
         }
     };
@@ -136,7 +133,7 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
     }
 
     // http://stackoverflow.com/questions/10931419/android-drawing-on-surfaceview-and-canvas
-    private void tryDrawing(Bitmap bitmap) {
+    private void drawBitmap(Bitmap bitmap) {
         Log.i(TAG, "Trying to draw...");
 
         Canvas canvas = mSurfaceHolder.lockCanvas();
@@ -148,14 +145,12 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
         }
     }
 
-
     /*==============================================
-      Other
+      Camera Preview callback
       ==============================================*/
 
     @Override
-    public void onPreviewFrame(byte[] arg0, Camera arg1)
-    {
+    public void onPreviewFrame(byte[] arg0, Camera arg1) {
         // At preview mode, the frame data will push to here.
         if (mImageFormat == VALID_VID_FORMAT)
         {
@@ -165,11 +160,6 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
                 mHandler.post(DoImageProcessing);
             }
         }
-    }
-
-    public void onPause()
-    {
-        mCamera.stopPreview();
     }
 
 }

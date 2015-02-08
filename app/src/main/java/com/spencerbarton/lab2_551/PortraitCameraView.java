@@ -7,9 +7,7 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.widget.AbsoluteLayout;
-import android.widget.LinearLayout;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.core.Core;

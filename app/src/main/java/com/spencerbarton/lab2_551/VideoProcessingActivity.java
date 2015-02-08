@@ -15,7 +15,7 @@ import org.opencv.core.Mat;
 
 public class VideoProcessingActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String TAG = "VideoProcessingActivity";
-    private CameraBridgeViewBase mOpenCvCameraView;
+    private PortraitCameraView mOpenCvCameraView;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -47,7 +47,7 @@ public class VideoProcessingActivity extends Activity implements CameraBridgeVie
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_video_processing);
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.video_surface);
+        mOpenCvCameraView = (PortraitCameraView) findViewById(R.id.video_surface);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
     }

@@ -26,7 +26,7 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
     // TODO camera data type may not be correct
     private static final String TAG = "CameraProcessing";
     private static final int VALID_VID_FORMAT = ImageFormat.NV21;
-    private static final int MATRIX_DATA_TYPE = CvType.CV_8UC3;
+    private static final int MATRIX_DATA_TYPE = CvType.CV_8UC4;
     private static final int CANNY_THRESH_1 = 300;
     private static final int CANNY_THRESH_2 = 600;
     private static final int CANNY_SOBEL_APERTURE_SZ = 5;
@@ -50,7 +50,7 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
     {
         // Install viewing callback
         surfaceHolder.addCallback(this);
-        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
 
         mPreviewSizeWidth = PreviewlayoutWidth;
         mPreviewSizeHeight = PreviewlayoutHeight;
@@ -115,7 +115,7 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
         {
             Log.i(TAG, "DoImageProcessing");
             mProcessing = true;
-            imageProcessing(mPreviewSizeWidth, mPreviewSizeHeight, mFrameData, mDisplayBitmap);
+            imageProcessing(mFrameData, mDisplayBitmap);
 
             // Set to view
             // TODO problem about where to display
@@ -124,10 +124,9 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
         }
     };
 
-    public void imageProcessing(int width, int height, byte[] frameData, Bitmap bitmap) {
+    public void imageProcessing(byte[] frameData, Bitmap bitmap) {
+        /*
         // Read in frame data and output in pixels
-
-        // Copy over data
         mImgMat.put(0, 0, frameData);
 
         // Edge detection
@@ -136,6 +135,8 @@ public class CameraProcessing implements SurfaceHolder.Callback, Camera.PreviewC
 
         // Put into output format
         Utils.matToBitmap(mProcessedImgMat, bitmap);
+        */
+        bitmap.
     }
 
     // http://stackoverflow.com/questions/10931419/android-drawing-on-surfaceview-and-canvas

@@ -6,5 +6,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_face_recognition">Face Recognition</string>
     <string name="title_activity_video_processing">Video Processing</string>
+    <string name="btn_reset">Reset</string>
+    <string name="btn_edge">Edges</string>
+    <string name="btn_blur">Blur</string>
 
 </resources>

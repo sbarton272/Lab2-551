@@ -4,17 +4,28 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 
 public class VideoProcessingActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String TAG = "VideoProcessingActivity";
+    private static final int BLUR_SZ = 25;
+    private static final int CANNY_THRS_1 = 300;
+    private static final int CANNY_THRS_2 = 600;
+    private static final int CANNY_APTR_SZ = 5;
+    private static final boolean CANNY_GRAD = true;
+    private static enum ViewMode {REGULAR, BLUR, EDGE};
+    private volatile ViewMode mViewMode = ViewMode.REGULAR;
     private PortraitCameraView mOpenCvCameraView;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -72,8 +83,42 @@ public class VideoProcessingActivity extends Activity implements CameraBridgeVie
     public void onCameraViewStopped() {
     }
 
+    //------------ Img Processing -------------------------------------------
+
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        return inputFrame.rgba();
+
+        Mat imgMat = inputFrame.rgba();
+
+        ViewMode mode = mViewMode;
+        switch (mode) {
+            case BLUR:
+                Imgproc.blur(imgMat, imgMat, new Size(BLUR_SZ, BLUR_SZ));
+                break;
+            case EDGE:
+                Imgproc.Canny(imgMat, imgMat, CANNY_THRS_1, CANNY_THRS_2, CANNY_APTR_SZ, CANNY_GRAD);
+                break;
+            default:
+                break;
+        }
+
+        return imgMat;
+    }
+
+    //------------ Btns -------------------------------------------
+
+    public void onResetBtn(View view) {
+        Log.i(TAG, "Reset button");
+        mViewMode = ViewMode.REGULAR;
+    }
+
+    public void onBlurBtn(View view) {
+        Log.i(TAG, "Blur button");
+        mViewMode = ViewMode.BLUR;
+    }
+
+    public void onEdgeBtn(View view) {
+        Log.i(TAG, "Edge button");
+        mViewMode = ViewMode.EDGE;
     }
 }

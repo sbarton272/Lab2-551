@@ -9,5 +9,13 @@
     <string name="btn_reset">Reset</string>
     <string name="btn_edge">Edges</string>
     <string name="btn_blur">Blur</string>
+    <string name="class_btn">+Class</string>
+    <string name="face_rec_header">Face Recognition</string>
+    <string name="train_btn">Train</string>
+    <string name="test_btn">Test</string>
+    <string name="class_in_popup_title">Add Class</string>
+    <string name="class_in_popup_msg">Name your new class.</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_ok">Ok</string>
 
 </resources>

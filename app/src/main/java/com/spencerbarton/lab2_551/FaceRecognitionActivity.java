@@ -40,7 +40,7 @@ public class FaceRecognitionActivity extends Activity {
     private static final String TAG = "FaceRecognitionActivity";
     private static final int FACE_IMG_SIZE = 128;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private Map<Integer, List<FaceImg>> mFaceImgs;
+    private Map<Integer, List<FaceImg>> mFaceImgMap;
     private FaceImg mCurFaceImg;
 
     @Override
@@ -48,7 +48,7 @@ public class FaceRecognitionActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_face_recognition);
 
-        mFaceImgs = new HashMap<>();
+        mFaceImgMap = new HashMap<>();
     }
 
     //=================================================================
@@ -93,14 +93,22 @@ public class FaceRecognitionActivity extends Activity {
         final int classId = Math.abs(UUID.randomUUID().hashCode());
 
         // Add class to training images
-        mFaceImgs.put(classId, new ArrayList<FaceImg>());
+        mFaceImgMap.put(classId, new ArrayList<FaceImg>());
+        
+        // Create new dir for imgs
+        File folder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES + File.separator + classId);
+        if (!folder.exists()) {
+            boolean r = folder.mkdir();
+            Log.i(TAG, "Folder created " + classId + " (" + r + ")");
+        }
 
         // Create new linear layout for classes
         LinearLayout classLayout = new LinearLayout(this);
         classLayout.setOrientation(LinearLayout.VERTICAL);
         classLayout.setId(classId);
 
-        Log.i(TAG, Integer.toString(classLayout.getId()));
+        Log.i(TAG, "New class:" + Integer.toString(classLayout.getId()));
 
         // Create text button header
         Button classHeader = new Button(this);
@@ -111,7 +119,7 @@ public class FaceRecognitionActivity extends Activity {
 
                 // Create new training image, save to map
                 FaceImg faceImg = new FaceImg(classId, that, FACE_IMG_SIZE);
-                mFaceImgs.get(classId).add(faceImg);
+                mFaceImgMap.get(classId).add(faceImg);
                 mCurFaceImg = faceImg;
                 faceImg.capture();
             }
@@ -174,7 +182,7 @@ public class FaceRecognitionActivity extends Activity {
         private File createImageFile(int classId) throws IOException {
             // Create an image file name
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String imageFileName = classId + "_" + timeStamp + "_";
+            String imageFileName = classId + File.separator + timeStamp + "_";
             File storageDir = Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_PICTURES);
             return File.createTempFile(
@@ -279,12 +287,17 @@ public class FaceRecognitionActivity extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                // Resize
+                faceImg = Bitmap.createScaledBitmap(faceImg, mImgSize, mImgSize, false);
             }
 
-            // Resize
-            return Bitmap.createScaledBitmap(faceImg, mImgSize, mImgSize, false);
+            return faceImg;
         }
 
+        public String getPath() {
+            return mFile.getAbsolutePath();
+        }
     }
 
     //=================================================================
@@ -292,6 +305,17 @@ public class FaceRecognitionActivity extends Activity {
     //=================================================================
 
     public void onTrainClick(View view) {
+
+        List<String> paths = new ArrayList<String>();
+        for (Map.Entry<Integer, List<FaceImg>> entry : mFaceImgMap.entrySet())
+        {
+            for (FaceImg faceImg : entry.getValue()) {
+                paths.add(faceImg.getPath());
+                Log.i(TAG, "Image paths: " + faceImg.getPath());
+            }
+        }
+
+        // TODO call native method with string of paths
     }
 
     //=================================================================

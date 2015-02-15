@@ -23,6 +23,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,7 +38,8 @@ import java.util.UUID;
 public class FaceRecognitionActivity extends Activity {
 
     private static final String TAG = "FaceRecognitionActivity";
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int FACE_IMG_SIZE = 128;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
     private Map<Integer, List<FaceImg>> mFaceImgs;
     private FaceImg mCurFaceImg;
 
@@ -107,7 +110,7 @@ public class FaceRecognitionActivity extends Activity {
             public void onClick(View view) {
 
                 // Create new training image, save to map
-                FaceImg faceImg = new FaceImg(classId, that);
+                FaceImg faceImg = new FaceImg(classId, that, FACE_IMG_SIZE);
                 mFaceImgs.get(classId).add(faceImg);
                 mCurFaceImg = faceImg;
                 faceImg.capture();
@@ -143,10 +146,15 @@ public class FaceRecognitionActivity extends Activity {
         private int mClassId;
         private Context mContext;
         private boolean mCaptured = false;
+        private int mImgSize;
+        private final static float FACE_WIDTH = 1f;
+        private final static float FACE_HEIGHT = 1f;
+        private final static float FACE_HEIGHT_RATIO = .3f;
 
-        public FaceImg(int classId, Context context) {
+        public FaceImg(int classId, Context context, int imgSize) {
             mClassId = classId;
             mContext = context;
+            mImgSize = imgSize;
 
             // Create new image preview
             mView = new ImageView(mContext);
@@ -196,13 +204,29 @@ public class FaceRecognitionActivity extends Activity {
 
                 // Read img
                 BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig=Bitmap.Config.RGB_565;
+                options.inPreferredConfig = Bitmap.Config.RGB_565;
                 Bitmap img = BitmapFactory.decodeFile(mFile.getAbsolutePath(), options);
                 Bitmap faceImg = findFace(img);
 
+                // Save image
                 if (faceImg != null) {
 
-                    // TODO Save image
+                    // Save image
+                    FileOutputStream out = null;
+                    try {
+                        out = new FileOutputStream(mFile);
+                        faceImg.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (out != null) {
+                                out.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     // Add image to view
                     mView.setImageBitmap(faceImg);
@@ -225,6 +249,8 @@ public class FaceRecognitionActivity extends Activity {
 
             // Process found face
             if (numFaces > 0) {
+
+                // Get max threshold face
                 FaceDetector.Face face = faces[0];
 
                 // http://stackoverflow.com/questions/9578097/android-face-detection-maxnumdetectedfaces
@@ -236,14 +262,13 @@ public class FaceRecognitionActivity extends Activity {
                                 + face.pose( FaceDetector.Face.EULER_Z ) + "). Eye Midpoint: (" + midEyes.x + "," + midEyes.y + ")" );
 
                 float eyedist = face.eyesDistance();
-                PointF lt = new PointF( midEyes.x - eyedist * 2.0f, midEyes.y - eyedist * 2.5f );
+                PointF lt = new PointF( midEyes.x - eyedist * FACE_WIDTH, midEyes.y - eyedist * FACE_HEIGHT * FACE_HEIGHT_RATIO );
                 // Create rectangle around face.  Create a box based on the eyes and add some padding.
-                // The ratio of head height to width is generally 9/5 but that makes the rect a bit to tall.
                 Rect faceRect =  new Rect(
                         Math.max( (int) ( lt.x ), 0 ),
                         Math.max( (int) ( lt.y ), 0 ),
-                        Math.min( (int) ( lt.x + eyedist * 4.0f ), img.getWidth() ),
-                        Math.min( (int) ( lt.y + eyedist * 5.5f ), img.getHeight() )
+                        Math.min( (int) ( lt.x + eyedist * FACE_WIDTH * 2 ), img.getWidth() ),
+                        Math.min( (int) ( lt.y + eyedist * FACE_HEIGHT * 2 ), img.getHeight() )
                 );
 
                 // Extract face from img
@@ -255,7 +280,9 @@ public class FaceRecognitionActivity extends Activity {
                     e.printStackTrace();
                 }
             }
-            return faceImg;
+
+            // Resize
+            return Bitmap.createScaledBitmap(faceImg, mImgSize, mImgSize, false);
         }
 
     }

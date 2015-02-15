@@ -2,9 +2,11 @@ package com.spencerbarton.lab2_551;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
@@ -21,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,6 +43,7 @@ public class FaceRecognitionActivity extends Activity {
     private static final String TAG = "FaceRecognitionActivity";
     private static final int FACE_IMG_SIZE = 128;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final String TEST_IMG_DIR = "test";
     private Map<Integer, List<FaceImg>> mFaceImgMap;
     private FaceImg mCurFaceImg;
 
@@ -49,6 +53,14 @@ public class FaceRecognitionActivity extends Activity {
         setContentView(R.layout.activity_face_recognition);
 
         mFaceImgMap = new HashMap<>();
+
+        // Create dir for test imgs
+        File folder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES + File.separator + TEST_IMG_DIR);
+        if (!folder.exists()) {
+            boolean r = folder.mkdir();
+            Log.i(TAG, "Folder created " + TEST_IMG_DIR + " (" + r + ")");
+        }
     }
 
     //=================================================================
@@ -118,7 +130,7 @@ public class FaceRecognitionActivity extends Activity {
             public void onClick(View view) {
 
                 // Create new training image, save to map
-                FaceImg faceImg = new FaceImg(classId, that, FACE_IMG_SIZE);
+                FaceImg faceImg = new TrainImg(classId, that, FACE_IMG_SIZE);
                 mFaceImgMap.get(classId).add(faceImg);
                 mCurFaceImg = faceImg;
                 faceImg.capture();
@@ -145,44 +157,76 @@ public class FaceRecognitionActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
+    public class TrainImg extends FaceImg{
+        private int mClassId;
+        private ImageView mView;
+
+        public TrainImg(int classId, Context context, int imgSize) {
+            super(Integer.toString(classId), imgSize);
+            mClassId = classId;
+
+            // Create new image preview
+            mView = new ImageView(context);
+            LinearLayout targetLayout = (LinearLayout) findViewById(mClassId);
+            targetLayout.addView(mView);
+
+        }
+
+        @Override
+        public void process() {
+            Log.i(TAG, "Processing image " + mFile.getName());
+
+            if (!mCaptured) {
+                mCaptured = true;
+
+                Bitmap img = loadImg();
+                Bitmap faceImg = findFace(img);
+
+                if (faceImg != null) {
+                    saveImg(faceImg);
+
+                    // Add image to view
+                    mView.setImageBitmap(faceImg);
+                }
+
+            }
+        }
+    }
+
     public class FaceImg {
 
         private final static int MAX_FACES = 1;
 
-        private ImageView mView;
-        private File mFile;
-        private int mClassId;
-        private Context mContext;
-        private boolean mCaptured = false;
+        protected File mFile;
+        protected boolean mCaptured = false;
         private int mImgSize;
-        private final static float FACE_WIDTH = 1f;
-        private final static float FACE_HEIGHT = 1f;
+        private final static float FACE_WIDTH = 1.2f;
+        private final static float FACE_HEIGHT = 1.2f;
         private final static float FACE_HEIGHT_RATIO = .3f;
+        private RecognitionCallback mRecognitionCallback;
 
-        public FaceImg(int classId, Context context, int imgSize) {
-            mClassId = classId;
-            mContext = context;
-            mImgSize = imgSize;
+        public FaceImg(String imgDir, int imgSize, RecognitionCallback recognitionCallback) {
+            this(imgDir, imgSize);
+            mRecognitionCallback = recognitionCallback;
+        }
 
-            // Create new image preview
-            mView = new ImageView(mContext);
-            LinearLayout targetLayout = (LinearLayout) findViewById(mClassId);
-            targetLayout.addView(mView);
+        public FaceImg(String imgDir, int imgSize) {
+        mImgSize = imgSize;
 
-            // Create new image in local storage
-            try {
-                mFile = createImageFile(classId);
-                mFile.deleteOnExit();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        // Create new image in local storage
+        try {
+            mFile = createImageFile(imgDir);
+            mFile.deleteOnExit();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         }
 
-        private File createImageFile(int classId) throws IOException {
+        private File createImageFile(String imgDir) throws IOException {
             // Create an image file name
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String imageFileName = classId + File.separator + timeStamp + "_";
+            String imageFileName = imgDir + File.separator + timeStamp + "_";
             File storageDir = Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_PICTURES);
             return File.createTempFile(
@@ -210,37 +254,24 @@ public class FaceRecognitionActivity extends Activity {
             if (!mCaptured) {
                 mCaptured = true;
 
-                // Read img
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.RGB_565;
-                Bitmap img = BitmapFactory.decodeFile(mFile.getAbsolutePath(), options);
+                Bitmap img = loadImg();
                 Bitmap faceImg = findFace(img);
 
-                // Save image
                 if (faceImg != null) {
+                    saveImg(faceImg);
 
-                    // Save image
-                    FileOutputStream out = null;
-                    try {
-                        out = new FileOutputStream(mFile);
-                        faceImg.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            if (out != null) {
-                                out.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    if (mRecognitionCallback != null) {
+                        mRecognitionCallback.recognition(mFile.getAbsolutePath());
                     }
-
-                    // Add image to view
-                    mView.setImageBitmap(faceImg);
                 }
 
             }
+        }
+
+        protected Bitmap loadImg() {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
+            return BitmapFactory.decodeFile(mFile.getAbsolutePath(), options);
         }
 
         public Bitmap findFace(Bitmap img) {
@@ -295,6 +326,25 @@ public class FaceRecognitionActivity extends Activity {
             return faceImg;
         }
 
+        protected void saveImg(Bitmap img) {
+
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(mFile);
+                img.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         public String getPath() {
             return mFile.getAbsolutePath();
         }
@@ -324,6 +374,41 @@ public class FaceRecognitionActivity extends Activity {
 
 
     public void onTestClick(View view) {
+
+        FaceImg faceImg = new FaceImg(TEST_IMG_DIR, FACE_IMG_SIZE, new RecognitionCallback(this));
+        mCurFaceImg = faceImg;
+        faceImg.capture();
+
+    }
+
+    public class RecognitionCallback {
+
+        private Context mContext;
+
+        public RecognitionCallback(Context context) {
+            mContext = context;
+        }
+
+        public void recognition(String path) {
+
+            Log.i(TAG, "Recognizing " + path);
+
+            // TODO call native method
+            int classId = R.id.add_class_btn;
+
+            // Display to user
+            Button classBtn = (Button) findViewById(classId);
+            Resources res = getResources();
+            String className = res.getString(R.string.default_class);
+            if (classBtn != null) {
+                className = classBtn.getText().toString();
+            }
+
+            // Dialog
+            CharSequence msg = res.getString(R.string.recognition_msg) + className;
+            Toast toast = Toast.makeText(mContext, msg , Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 
 }

@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.hardware.Camera;
 import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.Bundle;
@@ -157,6 +156,7 @@ public class FaceRecognitionActivity extends Activity {
             // Create new image in local storage
             try {
                 mFile = createImageFile(classId);
+                mFile.deleteOnExit();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -189,23 +189,29 @@ public class FaceRecognitionActivity extends Activity {
         }
 
         public void process() {
+            Log.i(TAG, "Processing image " + mFile.getName());
+
             if (!mCaptured) {
                 mCaptured = true;
 
                 // Read img
-                Bitmap img = BitmapFactory.decodeFile(mFile.getAbsolutePath());
-
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig=Bitmap.Config.RGB_565;
+                Bitmap img = BitmapFactory.decodeFile(mFile.getAbsolutePath(), options);
                 Bitmap faceImg = findFace(img);
 
-                // TODO Save image
+                if (faceImg != null) {
 
-                // Add image to view
-                mView.setImageBitmap(faceImg);
+                    // TODO Save image
+
+                    // Add image to view
+                    mView.setImageBitmap(faceImg);
+                }
 
             }
         }
 
-        private Bitmap findFace(Bitmap img) {
+        public Bitmap findFace(Bitmap img) {
 
             Bitmap faceImg = null;
 
@@ -214,6 +220,8 @@ public class FaceRecognitionActivity extends Activity {
             FaceDetector faceDetector = new FaceDetector(img.getWidth(), img.getHeight(),
                     MAX_FACES);
             int numFaces = faceDetector.findFaces(img, faces);
+
+            Log.i(TAG, "Faces found " + numFaces);
 
             // Process found face
             if (numFaces > 0) {

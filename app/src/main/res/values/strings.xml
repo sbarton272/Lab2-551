@@ -18,6 +18,6 @@
     <string name="btn_cancel">Cancel</string>
     <string name="btn_ok">Ok</string>
     <string name="default_class">No Class Found</string>
-    <string name="recognition_msg">Class:</string>
+    <string name="recognition_msg">Class</string>
 
 </resources>

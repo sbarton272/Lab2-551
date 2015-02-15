@@ -405,7 +405,7 @@ public class FaceRecognitionActivity extends Activity {
             }
 
             // Dialog
-            CharSequence msg = res.getString(R.string.recognition_msg) + className;
+            CharSequence msg = res.getString(R.string.recognition_msg) + ": " + className;
             Toast toast = Toast.makeText(mContext, msg , Toast.LENGTH_LONG);
             toast.show();
         }

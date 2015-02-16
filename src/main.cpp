@@ -9,6 +9,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#include "main.hpp"
+
 using namespace cv;
 using namespace std;
 
@@ -44,7 +46,7 @@ int main( int argc, char** argv )
 
 }
 
-void IPCAtrain(char* trainFolderPath, int numTrain)
+int IPCAtrain(char* trainFolderPath, int numTrain)
 {
     /* trainFolderPath is the path to the folder containing the training images
        numTrain is the number of training images per class */
@@ -63,6 +65,7 @@ void IPCAtrain(char* trainFolderPath, int numTrain)
 
     }
 
+    return 42;
 }
 
 int IPCAtest(char *imgName)
@@ -78,5 +81,5 @@ int IPCAtest(char *imgName)
 
     // return the class label corresponding to the eigen space which showed minimum reconstruction error
 
-    return 0;
+    return 42;
 }

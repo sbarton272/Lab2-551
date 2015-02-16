@@ -1,38 +1,35 @@
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <string>
+#include <fstream>
 
 #include "dir_utils.hpp"
 
 using namespace cv;
 using namespace std;
 
-int IPCAtrain(const char* trainFolderPath)
+// takes the (directory) name and path and trains a class based on the images in there
+int train_class(string dir_name, string path)
 {
-    /* trainFolderPath is the path to the folder containing the training images */
-    string p (trainFolderPath);
-    // map_dir(p, print_file_name, print_all_files);
-    // map_dirs(p, print_all_files);
-    // map_files(p, print_file_name);
+
+    //Run a loop to iterate over images of same person and generate the data matrix for the class
+    //i.e. a matrix in which each column is a vectorized version of the face matrix under consideration
+
+
+    // Subtract the mean vector from each vector of the data matrix
+
+    // Compute the covariance matrix and generate the eigen vectors using the Gram trick
+
+    // Store the eigen vectors and the mean vector in a file, which will be accessed by the IPCAtest function
+
+    return 0;
+}
+
+int IPCAtrain(const char* trainFolderPath, int numTrain)
+{
+    string path (trainFolderPath);
 
     // Run a loop to iterate over classes (people)
-    for(int c = 0; c < 0; c++)
-    {
-        //Run a loop to iterate over images of same person and generate the data matrix for the class
-        for(int im = 0; im < 0; im++)
-        {
-
-        }
-        //i.e. a matrix in which each column is a vectorized version of the face matrix under consideration
-
-        // Subtract the mean vector from each vector of the data matrix
-
-        // Compute the covariance matrix and generate the eigen vectors using the Gram trick
-
-        // Store the eigen vectors and the mean vector in a file, which will be accessed by the IPCAtest function
-
-    }
-
-    return 42;
+    return map_dirs(path, train_class);
 }
 
 int IPCAtest(char *imgName)

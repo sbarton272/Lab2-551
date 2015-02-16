@@ -17,7 +17,7 @@ using namespace std;
 
 int main( int argc, char** argv )
 {
-    IPCAtrain(".");
+    IPCAtrain(".", 0);
     if( argc != 2)
     {
      cout <<" Usage: display_image ImageToLoadAndDisplay" << endl;

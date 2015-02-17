@@ -44,15 +44,24 @@ public class FaceRecognitionActivity extends Activity {
     private static final int FACE_IMG_SIZE = 128;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final String TEST_IMG_DIR = "test";
-    private Map<Integer, List<FaceImg>> mFaceImgMap;
     private FaceImg mCurFaceImg;
+    private static final String mNativeLib = "faceRecognitionIpca";
+    private static final String TRAIN_IMG_DIR = "train";
+    private static final int NUM_PCA_COMP = 6;
+
+    //---- Native Library Definitions ------------------
+
+    static {
+        System.loadLibrary(mNativeLib);
+    }
+
+    private native int IPCAtest(String imgName);
+    private native int IPCAtrain(String trainFileRoot, int numPcaCmp);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_face_recognition);
-
-        mFaceImgMap = new HashMap<>();
 
         // Create dir for test imgs
         File folder = Environment.getExternalStoragePublicDirectory(
@@ -104,12 +113,10 @@ public class FaceRecognitionActivity extends Activity {
         // Generate unique id for class
         final int classId = Math.abs(UUID.randomUUID().hashCode());
 
-        // Add class to training images
-        mFaceImgMap.put(classId, new ArrayList<FaceImg>());
-        
         // Create new dir for imgs
         File folder = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + File.separator + classId);
+                Environment.DIRECTORY_PICTURES + File.separator + TRAIN_IMG_DIR +
+                File.separator + classId);
         if (!folder.exists()) {
             boolean r = folder.mkdir();
             Log.i(TAG, "Folder created " + classId + " (" + r + ")");
@@ -131,7 +138,6 @@ public class FaceRecognitionActivity extends Activity {
 
                 // Create new training image, save to map
                 FaceImg faceImg = new TrainImg(classId, that, FACE_IMG_SIZE);
-                mFaceImgMap.get(classId).add(faceImg);
                 mCurFaceImg = faceImg;
                 faceImg.capture();
             }
@@ -162,7 +168,7 @@ public class FaceRecognitionActivity extends Activity {
         private ImageView mView;
 
         public TrainImg(int classId, Context context, int imgSize) {
-            super(Integer.toString(classId), imgSize);
+            super(TRAIN_IMG_DIR + File.separator + Integer.toString(classId), imgSize);
             mClassId = classId;
 
             // Create new image preview
@@ -213,13 +219,14 @@ public class FaceRecognitionActivity extends Activity {
         public FaceImg(String imgDir, int imgSize) {
         mImgSize = imgSize;
 
-        // Create new image in local storage
-        try {
-            mFile = createImageFile(imgDir);
-            mFile.deleteOnExit();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            // Create new image in local storage
+            try {
+                mFile = createImageFile(imgDir);
+                mFile.deleteOnExit();
+                Log.i(TAG, "Created new file " + mFile.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
 
@@ -355,23 +362,13 @@ public class FaceRecognitionActivity extends Activity {
     //=================================================================
 
     public void onTrainClick(View view) {
-
-        List<String> paths = new ArrayList<String>();
-        for (Map.Entry<Integer, List<FaceImg>> entry : mFaceImgMap.entrySet())
-        {
-            for (FaceImg faceImg : entry.getValue()) {
-                paths.add(faceImg.getPath());
-                Log.i(TAG, "Image paths: " + faceImg.getPath());
-            }
-        }
-
-        // TODO call native method with string of paths
+        int success = IPCAtrain(TRAIN_IMG_DIR, NUM_PCA_COMP);
+        Log.i(TAG, "Success: " + success);
     }
 
     //=================================================================
     // Testing
     //=================================================================
-
 
     public void onTestClick(View view) {
 
@@ -393,8 +390,8 @@ public class FaceRecognitionActivity extends Activity {
 
             Log.i(TAG, "Recognizing " + path);
 
-            // TODO call native method
-            int classId = R.id.add_class_btn;
+            // Call native method
+            int classId = IPCAtest(path);
 
             // Display to user
             Button classBtn = (Button) findViewById(classId);
@@ -403,6 +400,8 @@ public class FaceRecognitionActivity extends Activity {
             if (classBtn != null) {
                 className = classBtn.getText().toString();
             }
+
+            Log.i(TAG, "Recognized: " + className + " (" + classId + ")");
 
             // Dialog
             CharSequence msg = res.getString(R.string.recognition_msg) + ": " + className;

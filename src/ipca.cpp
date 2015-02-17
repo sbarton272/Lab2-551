@@ -10,7 +10,7 @@
 using namespace cv;
 using namespace std;
 
-#include <iostream>
+// #include <iostream>
 
 void save(const string &file_name,PCA pca_)
 {
@@ -39,6 +39,14 @@ int IPCAtrain(const char* trainFolderPath, int numComponents)
 
     // Run a loop to iterate (or just map) over classes (people)
     return map_dirs(path, [numComponents] (string dir_name, string path) {
+        try {
+            stoi(dir_name);
+        }
+        catch(exception const & e)
+        {
+             // cout<<"error : " << e.what() <<endl;
+            return 0;
+        }
         //Run a loop to iterate over images (or map) of same person and generate the data matrix for the class
         vector<Mat> data;
         int err = map_files(path + dir_name, [&data] (string img_name, string path) {
@@ -111,9 +119,16 @@ int IPCAtest(const char* trainFolderPath, const char* imgName)
 
         return 0;
     });
+    if (err) return -1;
     // return the class label corresponding to the eigen space which showed minimum reconstruction error
-
-    cout << "winning class: " << min_error_class << endl;
-
-    return err;
+    min_error_class = min_error_class.substr(0, min_error_class.size() - 4);
+    int out = -1;
+    try {
+        out = stoi(min_error_class);
+    }
+    catch(exception const & e)
+    {
+         // cout<<"error : " << e.what() <<endl;
+    }
+    return out;
 }

@@ -41,7 +41,8 @@ int main( int argc, char** argv )
     // Call IPCAtrain to generate a text file containing eigenvectors and means of each clas
     IPCAtrain("/Users/delu/Downloads/HW2Images", 6);
     // Call IPCAtest using a test function and see if it returns the correct class label
-    IPCAtest("/Users/delu/Downloads/HW2Images", "/Users/delu/Downloads/HW2Images/Test_Files/class109.jpg");
+    int out = IPCAtest("/Users/delu/Downloads/HW2Images", "/Users/delu/Downloads/HW2Images/Test_Files/class109.jpg");
+    cout << "winning class: " << out << endl;
     // We will be testing on our own set of test images after you submit the code
     return 0;
 

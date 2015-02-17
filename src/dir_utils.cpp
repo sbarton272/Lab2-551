@@ -20,13 +20,13 @@ int map_dir(string dir_path, fd_fn file_fn, fd_fn dir_fn)
         string name (ent->d_name);
         unsigned char type =  ent->d_type;
         if (type == DT_REG) {
-            if(file_fn(name, dir_path) == -1) {
+            if(file_fn(name, dir_path+"/") == -1) {
                 return -1;
             }
         }
 
         if (type == DT_DIR && name[0] != '.') {
-            if(dir_fn(name, dir_path) == -1) {
+            if(dir_fn(name, dir_path+"/") == -1) {
                 return -1;
             }
         }

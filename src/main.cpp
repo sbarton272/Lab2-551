@@ -17,33 +17,32 @@ using namespace std;
 
 int main( int argc, char** argv )
 {
-    IPCAtrain(".", 0);
-    if( argc != 2)
-    {
-     cout <<" Usage: display_image ImageToLoadAndDisplay" << endl;
-     return -1;
-    }
+    // if( argc != 2)
+    // {
+    //  cout <<" Usage: display_image ImageToLoadAndDisplay" << endl;
+    //  return -1;
+    // }
 
-    Mat image;
-    image = imread(argv[1], CV_LOAD_IMAGE_COLOR);   // Read the file
+    // Mat image;
+    // image = imread(argv[1], CV_LOAD_IMAGE_COLOR);   // Read the file
 
-    if(! image.data )                              // Check for invalid input
-    {
-        cout <<  "Could not open or find the image" << std::endl ;
-        return -1;
-    }
+    // if(! image.data )                              // Check for invalid input
+    // {
+    //     cout <<  "Could not open or find the image" << std::endl ;
+    //     return -1;
+    // }
 
-    namedWindow( "Display window", WINDOW_AUTOSIZE );// Create a window for display.
-    imshow( "Display window", image );                   // Show our image inside it.
+    // namedWindow( "Display window", WINDOW_AUTOSIZE );// Create a window for display.
+    // imshow( "Display window", image );                   // Show our image inside it.
 
-    waitKey(0);                                          // Wait for a keystroke in the window
-    return 0;
+    // waitKey(0);                                          // Wait for a keystroke in the window
 
 
     // Call IPCAtrain to generate a text file containing eigenvectors and means of each clas
-
+    IPCAtrain("/Users/delu/Downloads/HW2Images", 6);
     // Call IPCAtest using a test function and see if it returns the correct class label
-
+    IPCAtest("/Users/delu/Downloads/HW2Images", "/Users/delu/Downloads/HW2Images/Test_Files/class109.jpg");
     // We will be testing on our own set of test images after you submit the code
+    return 0;
 
 }

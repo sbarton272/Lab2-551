@@ -1,8 +1,9 @@
 #include <string>
+#include <functional>
 
 using namespace std;
 
-typedef int (*fd_fn)(string, string);
+typedef function<int (string, string)> fd_fn;
 
 // maps two functions over all the files and directories at a given path
 // file_fn/dir_fn(name, directory its in)

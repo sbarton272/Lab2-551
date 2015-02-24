@@ -1,5 +1,6 @@
 /*** 18551 Homework 2 Starter Code ******/
-
+#include <jni.h>
+#include <android/log.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <string>
@@ -58,6 +59,9 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
     string test_name;
     getJStringContent(env, imgName, test_name);
 
+    string msg = "Called with args:" + path + ", " + test_name;
+    __android_log_write(ANDROID_LOG_INFO, "IPCAtest", msg.c_str());
+
     /* imgName is the path and filename of the test image */
     Mat im = imread(test_name, CV_LOAD_IMAGE_COLOR).reshape(1,1);
 
@@ -115,6 +119,13 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
     string path;
     getJStringContent(env, trainFolderPath, path);
     int numComponents (numPcaComp);
+
+    // Logging
+    // TODO use https://www.crystax.net/android/ndk
+    std::ostringstream ss;
+    ss << numComponents;
+    string msg = "Called with args:" + path + ", " + ss.str();
+    __android_log_write(ANDROID_LOG_INFO, "IPCAtrain", msg.c_str());
 
     // Run a loop to iterate (or just map) over classes (people)
     return map_dirs(path, [numComponents] (string dir_name, string path) {

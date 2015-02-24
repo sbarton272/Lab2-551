@@ -63,12 +63,18 @@ public class FaceRecognitionActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_face_recognition);
 
-        // Create dir for test imgs
+        // Create dir for test/train imgs
         File folder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES + File.separator + TEST_IMG_DIR);
         if (!folder.exists()) {
             boolean r = folder.mkdir();
-            Log.i(TAG, "Folder created " + TEST_IMG_DIR + " (" + r + ")");
+            Log.i(TAG, "Folder created " + folder.getAbsolutePath() + " (" + r + ")");
+        }
+        folder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES + File.separator + TRAIN_IMG_DIR);
+        if (!folder.exists()) {
+            boolean r = folder.mkdir();
+            Log.i(TAG, "Folder created " + folder.getAbsolutePath() + " (" + r + ")");
         }
     }
 
@@ -119,7 +125,7 @@ public class FaceRecognitionActivity extends Activity {
                 File.separator + classId);
         if (!folder.exists()) {
             boolean r = folder.mkdir();
-            Log.i(TAG, "Folder created " + classId + " (" + r + ")");
+            Log.i(TAG, "Folder created " + folder.getAbsolutePath() + " (" + r + ")");
         }
 
         // Create new linear layout for classes
@@ -136,7 +142,7 @@ public class FaceRecognitionActivity extends Activity {
         classHeader.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
 
-                // Create new training image, save to map
+                // Create new training image
                 FaceImg faceImg = new TrainImg(classId, that, FACE_IMG_SIZE);
                 mCurFaceImg = faceImg;
                 faceImg.capture();

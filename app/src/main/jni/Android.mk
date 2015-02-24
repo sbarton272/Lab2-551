@@ -10,7 +10,7 @@ OPENCV_LIB_TYPE:=SHARED
 include ${OPENCVROOT}\sdk\native\jni\OpenCV.mk
 
 #main
-LOCAL_SRC_FILES := main.cpp
+LOCAL_SRC_FILES := ipca.cpp dirUtils.cpp
 LOCAL_LDLIBS += -llog
 LOCAL_MODULE := faceRecognitionIpca
 

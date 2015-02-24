@@ -55,7 +55,7 @@ public class FaceRecognitionActivity extends Activity {
         System.loadLibrary(mNativeLib);
     }
 
-    private native int IPCAtest(String imgName);
+    private native int IPCAtest(String trainFileRoot, String imgName);
     private native int IPCAtrain(String trainFileRoot, int numPcaCmp);
 
     @Override
@@ -391,7 +391,7 @@ public class FaceRecognitionActivity extends Activity {
             Log.i(TAG, "Recognizing " + path);
 
             // Call native method
-            int classId = IPCAtest(path);
+            int classId = IPCAtest(TRAIN_IMG_DIR, path);
 
             // Display to user
             Button classBtn = (Button) findViewById(classId);

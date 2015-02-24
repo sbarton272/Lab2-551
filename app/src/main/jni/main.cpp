@@ -1,6 +1,10 @@
 /*** 18551 Homework 2 Starter Code ******/
 
 #include <jni.h>
+#include <string>
+#include <fstream>
+#include <opencv2/core/core.hpp>
+
 #include "com_spencerbarton_lab2_551_FaceRecognitionActivity.h"
 
 JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_IPCAtest
@@ -9,7 +13,7 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
 }
 
 JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_IPCAtrain
-  (JNIEnv *, jobject, jstring, jint numPcaCmp) {
+  (JNIEnv * env, jobject obj, jstring trainFile, jint numPcaCmp) {
     return numPcaCmp;
 }
 

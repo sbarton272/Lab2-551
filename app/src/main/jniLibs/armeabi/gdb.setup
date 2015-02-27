@@ -1,0 +1,3 @@
+set solib-search-path ./obj/local/armeabi
+source C:/Users/Spencer/AppData/Local/Android/ndk/prebuilt/common/gdb/common.setup
+directory C:/Users/Spencer/AppData/Local/Android/ndk/platforms/android-3/arch-arm/usr/include C:/Users\Spencer\AndroidStudioProjects\opencv\sdk\native\jni\/include/opencv C:/Users\Spencer\AndroidStudioProjects\opencv\sdk\native\jni\/include C:/Users/Spencer/AppData/Local/Android/ndk/sources/cxx-stl/gnu-libstdc++/4.8/include C:/Users/Spencer/AppData/Local/Android/ndk/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi/include C:/Users/Spencer/AppData/Local/Android/ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/backward

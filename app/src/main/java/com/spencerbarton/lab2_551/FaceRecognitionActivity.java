@@ -24,8 +24,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -44,6 +42,8 @@ public class FaceRecognitionActivity extends Activity {
     private static final String mNativeLib = "faceRecognitionIpca";
     private static final String TRAIN_IMG_DIR = "train";
     private static final int NUM_PCA_COMP = 6;
+    private File mTrainDir;
+    private File mTestDir;
 
     //---- Native Library Definitions ------------------
 
@@ -60,25 +60,29 @@ public class FaceRecognitionActivity extends Activity {
         setContentView(R.layout.activity_face_recognition);
 
         // Create dir for test/train imgs
-        File folder = Environment.getExternalStoragePublicDirectory(
+        mTestDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES + File.separator + TEST_IMG_DIR);
-        createNewDir(folder);
-        folder = Environment.getExternalStoragePublicDirectory(
+        createNewDir(mTestDir);
+        mTrainDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES + File.separator + TRAIN_IMG_DIR);
-        createNewDir(folder);
+        createNewDir(mTrainDir);
 
     }
 
     private void createNewDir(File folder) {
         if (folder.exists()) {
-            try {
-                FileUtils.deleteDirectory(folder);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            deleteRecursive(folder);
         }
         boolean r = folder.mkdir();
         Log.i(TAG, "Folder created " + folder.getAbsolutePath() + " (" + r + ")");
+    }
+
+    private void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        fileOrDirectory.delete();
     }
 
     //=================================================================
@@ -371,9 +375,7 @@ public class FaceRecognitionActivity extends Activity {
     //=================================================================
 
     public void onTrainClick(View view) {
-        File folder = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + File.separator + TRAIN_IMG_DIR);
-        int success = IPCAtrain(folder.getAbsolutePath(), NUM_PCA_COMP);
+        int success = IPCAtrain(mTrainDir.getAbsolutePath(), NUM_PCA_COMP);
         Log.i(TAG, "Success: " + success);
     }
 
@@ -382,9 +384,7 @@ public class FaceRecognitionActivity extends Activity {
     //=================================================================
 
     public void onTestClick(View view) {
-        File folder = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + File.separator + TEST_IMG_DIR);
-        FaceImg faceImg = new FaceImg(folder.getAbsolutePath() + File.separator + TEST_IMG_DIR, FACE_IMG_SIZE, new RecognitionCallback(this));
+        FaceImg faceImg = new FaceImg(TEST_IMG_DIR, FACE_IMG_SIZE, new RecognitionCallback(this));
         mCurFaceImg = faceImg;
         faceImg.capture();
 
@@ -403,7 +403,7 @@ public class FaceRecognitionActivity extends Activity {
             Log.i(TAG, "Recognizing " + path);
 
             // Call native method
-            int classId = IPCAtest(TRAIN_IMG_DIR, path);
+            int classId = IPCAtest(mTestDir.getAbsolutePath(), path);
 
             // Display to user
             Button classBtn = (Button) findViewById(classId);

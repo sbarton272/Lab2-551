@@ -104,6 +104,7 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
     min_error_class = min_error_class.substr(0, min_error_class.size() - 4);
     int out = -1;
     try {
+        __android_log_write(ANDROID_LOG_INFO, "IPCAtest: Min err class", min_error_class.c_str());
         out = atoi(min_error_class.c_str());
     }
     catch(exception const & e)

@@ -403,7 +403,7 @@ public class FaceRecognitionActivity extends Activity {
             Log.i(TAG, "Recognizing " + path);
 
             // Call native method
-            int classId = IPCAtest(mTestDir.getAbsolutePath(), path);
+            int classId = IPCAtest(mTrainDir.getAbsolutePath(), path);
 
             // Display to user
             Button classBtn = (Button) findViewById(classId);

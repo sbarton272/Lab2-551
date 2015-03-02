@@ -74,6 +74,9 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
 
     int err = map_files(path, [&im, &min_error, &min_error_class] (string pca_name, string path) {
         if (pca_name.size() < 4 || pca_name.substr(pca_name.size() - 4, 4).compare(".pca")) return 0;
+
+        __android_log_write(ANDROID_LOG_INFO, "IPCAtest: pca_name ", pca_name.c_str());
+
         // cout << "pca path:" << path << pca_name << endl;
         PCA pca = load(path + pca_name);
 
@@ -111,6 +114,7 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
     {
          // cout<<"error : " << e.what() <<endl;
     }
+    __android_log_print(ANDROID_LOG_INFO, "IPCAtest", "Min err class %d", out);
     return out;
 }
 

@@ -1,3 +1,0 @@
-set solib-search-path ./obj/local/mips
-source C:/Users/Spencer/AppData/Local/Android/ndk/prebuilt/common/gdb/common.setup
-directory C:/Users/Spencer/AppData/Local/Android/ndk/platforms/android-9/arch-mips/usr/include C:/Users\Spencer\AndroidStudioProjects\opencv\sdk\native\jni\/include/opencv C:/Users\Spencer\AndroidStudioProjects\opencv\sdk\native\jni\/include C:/Users/Spencer/AppData/Local/Android/ndk/sources/cxx-stl/gnu-libstdc++/4.8/include C:/Users/Spencer/AppData/Local/Android/ndk/sources/cxx-stl/gnu-libstdc++/4.8/libs/mips/include C:/Users/Spencer/AppData/Local/Android/ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/backward

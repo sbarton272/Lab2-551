@@ -34,3 +34,5 @@ proguard/
 # Native lib
 app/src/main/libs
 app/src/main/obj
+
+*.iml

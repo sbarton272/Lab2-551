@@ -2,7 +2,6 @@ package com.spencerbarton.lab2_551;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,18 +24,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
 
 public class FaceRecognitionActivity extends Activity {
 
@@ -66,16 +62,23 @@ public class FaceRecognitionActivity extends Activity {
         // Create dir for test/train imgs
         File folder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES + File.separator + TEST_IMG_DIR);
-        if (!folder.exists()) {
-            boolean r = folder.mkdir();
-            Log.i(TAG, "Folder created " + folder.getAbsolutePath() + " (" + r + ")");
-        }
+        createNewDir(folder);
         folder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES + File.separator + TRAIN_IMG_DIR);
-        if (!folder.exists()) {
-            boolean r = folder.mkdir();
-            Log.i(TAG, "Folder created " + folder.getAbsolutePath() + " (" + r + ")");
+        createNewDir(folder);
+
+    }
+
+    private void createNewDir(File folder) {
+        if (folder.exists()) {
+            try {
+                FileUtils.deleteDirectory(folder);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        boolean r = folder.mkdir();
+        Log.i(TAG, "Folder created " + folder.getAbsolutePath() + " (" + r + ")");
     }
 
     //=================================================================

@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <dirent.h>
 #include <string>
+#include <android/log.h>
 
 #include "dirUtils.hpp"
 
@@ -13,6 +14,8 @@ int map_dir(string dir_path, fd_fn file_fn, fd_fn dir_fn)
     DIR *dir = opendir(dir_path.c_str());
     if (dir == NULL)
     {
+
+    __android_log_write(ANDROID_LOG_INFO, "map_dir: failed to open directory: %s", dir_path.c_str());
         return -1;
     }
     struct dirent *ent;

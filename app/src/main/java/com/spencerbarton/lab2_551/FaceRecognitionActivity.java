@@ -368,7 +368,9 @@ public class FaceRecognitionActivity extends Activity {
     //=================================================================
 
     public void onTrainClick(View view) {
-        int success = IPCAtrain(TRAIN_IMG_DIR, NUM_PCA_COMP);
+        File folder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES + File.separator + TRAIN_IMG_DIR);
+        int success = IPCAtrain(folder.getAbsolutePath(), NUM_PCA_COMP);
         Log.i(TAG, "Success: " + success);
     }
 
@@ -377,8 +379,9 @@ public class FaceRecognitionActivity extends Activity {
     //=================================================================
 
     public void onTestClick(View view) {
-
-        FaceImg faceImg = new FaceImg(TEST_IMG_DIR, FACE_IMG_SIZE, new RecognitionCallback(this));
+        File folder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES + File.separator + TEST_IMG_DIR);
+        FaceImg faceImg = new FaceImg(folder.getAbsolutePath() + File.separator + TEST_IMG_DIR, FACE_IMG_SIZE, new RecognitionCallback(this));
         mCurFaceImg = faceImg;
         faceImg.capture();
 

@@ -96,7 +96,10 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
 
         return 0;
     });
-    if (err) return -1;
+    if (err) {
+        __android_log_write(ANDROID_LOG_INFO, "IPCAtest: %s", "Failed to train");
+        return -1;
+    }
     // return the class label corresponding to the eigen space which showed minimum reconstruction error
     min_error_class = min_error_class.substr(0, min_error_class.size() - 4);
     int out = -1;
@@ -124,11 +127,11 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
     // TODO use https://www.crystax.net/android/ndk
     std::ostringstream ss;
     ss << numComponents;
-    string msg = "Called with args:" + path + ", " + ss.str();
+    string msg = "Called with argsss:" + path + ", " + ss.str();
     __android_log_write(ANDROID_LOG_INFO, "IPCAtrain", msg.c_str());
 
     // Run a loop to iterate (or just map) over classes (people)
-    return map_dirs(path, [numComponents] (string dir_name, string path) {
+    int err =  map_dirs(path, [numComponents] (string dir_name, string path) {
         try {
             // TODO necessary?
             atoi(dir_name.c_str());
@@ -138,13 +141,18 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
              // cout<<"error : " << e.what() <<endl;
             return 0;
         }
+        __android_log_write(ANDROID_LOG_INFO, "IPCAtrain: Training this directory", dir_name.c_str());
         //Run a loop to iterate over images (or map) of same person and generate the data matrix for the class
         vector<Mat> data;
         int err = map_files(path + dir_name, [&data] (string img_name, string path) {
+            __android_log_write(ANDROID_LOG_INFO, "IPCAtrain: Training this image", img_name.c_str());
             //i.e. a matrix in which each column is a vectorized version of the face matrix under consideration
             // Subtract the mean vector from each vector of the data matrix (ie normalize it i guess)
             Mat im = imread(path + img_name, CV_LOAD_IMAGE_COLOR);
-            if (im.data == NULL) return -1;
+            if (im.data == NULL) {
+                __android_log_write(ANDROID_LOG_INFO, "IPCAtrain: This image does not exist", img_name.c_str());
+                return -1;
+            }
 
             Scalar mean;
             Scalar stddev;
@@ -154,6 +162,11 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
             data.push_back(im);
             return 0;
         });
+
+        if (err == -1) {
+            __android_log_write(ANDROID_LOG_INFO, "IPCAtrain: Something went wrong with training this dir", dir_name.c_str());
+        }
+
 
         Mat data_mat;
         vconcat(data, data_mat);
@@ -170,5 +183,11 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
 
         return err;
     });
+
+    if (err == -1) {
+        __android_log_write(ANDROID_LOG_INFO, "IPCAtrain", "Something went wrong with training!");
+    }
+
+    return err;
 }
 

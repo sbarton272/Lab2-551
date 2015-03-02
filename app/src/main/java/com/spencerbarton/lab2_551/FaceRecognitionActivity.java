@@ -38,6 +38,7 @@ public class FaceRecognitionActivity extends Activity {
     private static final int FACE_IMG_SIZE = 128;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final String TEST_IMG_DIR = "test";
+    private static final int BUTTON_ID = Math.abs(UUID.randomUUID().hashCode());;
     private FaceImg mCurFaceImg;
     private static final String mNativeLib = "faceRecognitionIpca";
     private static final String TRAIN_IMG_DIR = "train";
@@ -144,6 +145,7 @@ public class FaceRecognitionActivity extends Activity {
 
         // Create text button header
         Button classHeader = new Button(this);
+        classHeader.setId(BUTTON_ID);
         classHeader.setText(className);
         final Context that = this;
         classHeader.setOnClickListener(new View.OnClickListener() {
@@ -406,7 +408,8 @@ public class FaceRecognitionActivity extends Activity {
             int classId = IPCAtest(mTrainDir.getAbsolutePath(), path);
 
             // Display to user
-            Button classBtn = (Button) findViewById(classId);
+            LinearLayout classLayout = (LinearLayout) findViewById(classId);
+            Button classBtn = (Button) classLayout.findViewById(BUTTON_ID);
             Resources res = getResources();
             String className = res.getString(R.string.default_class);
             if (classBtn != null) {

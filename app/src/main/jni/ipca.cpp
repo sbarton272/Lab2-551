@@ -196,3 +196,19 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
     return err;
 }
 
+//------------- Lab 3 Gender ---------------------------------------
+
+JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_ClassifyGender
+    (JNIEnv * env, jobject obj, jstring imPath) {
+
+    String imName;
+    getJStringContent(env, imPath, imName);
+
+    /* imgName is the path and filename of the test image */
+    Mat im = imread(imName, CV_LOAD_IMAGE_COLOR).reshape(1,1);
+    Mat normIm;
+    normalize(im, normIm, 0, 1, NORM_MINMAX, CV_32F);
+
+    return 1;
+}
+

@@ -29,6 +29,9 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
 JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_IPCAtrain
   (JNIEnv *, jobject, jstring, jint);
 
+JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_ClassifyGender
+    (JNIEnv *, jobject, jstring);
+
 #ifdef __cplusplus
 }
 #endif

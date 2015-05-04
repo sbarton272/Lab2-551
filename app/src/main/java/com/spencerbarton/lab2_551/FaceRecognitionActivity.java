@@ -54,6 +54,7 @@ public class FaceRecognitionActivity extends Activity {
 
     private native int IPCAtest(String trainFileRoot, String imgName);
     private native int IPCAtrain(String trainFileRoot, int numPcaCmp);
+    private native int ClassifyGender(String imgName);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -406,6 +407,7 @@ public class FaceRecognitionActivity extends Activity {
 
             // Call native method
             int classId = IPCAtest(mTrainDir.getAbsolutePath(), path);
+            String gender = (ClassifyGender(path) == 1) ? "male" : "female";
 
             // Display to user
             LinearLayout classLayout = (LinearLayout) findViewById(classId);
@@ -416,10 +418,10 @@ public class FaceRecognitionActivity extends Activity {
                 className = classBtn.getText().toString();
             }
 
-            Log.i(TAG, "Recognized: " + className + " (" + classId + ")");
+            Log.i(TAG, "Recognized: " + className + " (" + classId + ")" + " Gender " + gender);
 
             // Dialog
-            CharSequence msg = res.getString(R.string.recognition_msg) + ": " + className;
+            CharSequence msg = res.getString(R.string.recognition_msg) + ": " + className + " Gender: " + gender;
             Toast toast = Toast.makeText(mContext, msg , Toast.LENGTH_LONG);
             toast.show();
         }

@@ -30,7 +30,7 @@ JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_
   (JNIEnv *, jobject, jstring, jint);
 
 JNIEXPORT jint JNICALL Java_com_spencerbarton_lab2_1551_FaceRecognitionActivity_ClassifyGender
-    (JNIEnv *, jobject, jstring);
+    (JNIEnv *, jobject, jstring, jstring);
 
 #ifdef __cplusplus
 }

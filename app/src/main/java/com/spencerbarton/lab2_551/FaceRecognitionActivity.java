@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,9 +26,12 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -54,7 +58,24 @@ public class FaceRecognitionActivity extends Activity {
 
     private native int IPCAtest(String trainFileRoot, String imgName);
     private native int IPCAtrain(String trainFileRoot, int numPcaCmp);
-    private native int ClassifyGender(String imgName);
+    private native int ClassifyGender(String imgName, String modelPath);
+
+    private int classifyGender(String imgName) {
+        InputStream is = getResources().openRawResource(R.raw.model);
+        File model = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS + File.separator + "model.txt");
+        try{
+            OutputStream os = new FileOutputStream(model);
+            int read;
+            byte[] bytes = new byte[1024];
+            while ((read = is.read(bytes)) != -1) {
+                os.write(bytes, 0, read);
+            }
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return ClassifyGender(imgName, model.getAbsolutePath());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,6 +230,10 @@ public class FaceRecognitionActivity extends Activity {
 
                     // Add image to view
                     mView.setImageBitmap(faceImg);
+
+                    String gender = (classifyGender(mFile.getAbsolutePath()) == 1) ? "male" : "female";
+                    Toast toast = Toast.makeText(FaceRecognitionActivity.this, gender, Toast.LENGTH_SHORT);
+                    toast.show();
                 }
 
             }
@@ -407,7 +432,7 @@ public class FaceRecognitionActivity extends Activity {
 
             // Call native method
             int classId = IPCAtest(mTrainDir.getAbsolutePath(), path);
-            String gender = (ClassifyGender(path) == 1) ? "male" : "female";
+            String gender = (classifyGender(path) == 1) ? "male" : "female";
 
             // Display to user
             LinearLayout classLayout = (LinearLayout) findViewById(classId);

@@ -39,10 +39,11 @@ import java.util.UUID;
 public class FaceRecognitionActivity extends Activity {
 
     private static final String TAG = "FaceRecognitionActivity";
-    private static final int FACE_IMG_SIZE = 128;
+    private static final int FACE_IMG_W = 64;
+    private static final int FACE_IMG_H = 85;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final String TEST_IMG_DIR = "test";
-    private static final int BUTTON_ID = Math.abs(UUID.randomUUID().hashCode());;
+    private static final int BUTTON_ID = Math.abs(UUID.randomUUID().hashCode());
     private FaceImg mCurFaceImg;
     private static final String mNativeLib = "faceRecognitionIpca";
     private static final String TRAIN_IMG_DIR = "train";
@@ -174,7 +175,7 @@ public class FaceRecognitionActivity extends Activity {
             public void onClick(View view) {
 
                 // Create new training image
-                FaceImg faceImg = new TrainImg(classId, that, FACE_IMG_SIZE);
+                FaceImg faceImg = new TrainImg(classId, that, FACE_IMG_W, FACE_IMG_H);
                 mCurFaceImg = faceImg;
                 faceImg.capture();
             }
@@ -204,8 +205,8 @@ public class FaceRecognitionActivity extends Activity {
         private int mClassId;
         private ImageView mView;
 
-        public TrainImg(int classId, Context context, int imgSize) {
-            super(TRAIN_IMG_DIR + File.separator + Integer.toString(classId), imgSize);
+        public TrainImg(int classId, Context context, int imgSizeW, int imgSizeH) {
+            super(TRAIN_IMG_DIR + File.separator + Integer.toString(classId), imgSizeW, imgSizeH);
             mClassId = classId;
 
             // Create new image preview
@@ -246,19 +247,21 @@ public class FaceRecognitionActivity extends Activity {
 
         protected File mFile;
         protected boolean mCaptured = false;
-        private int mImgSize;
+        private int mImgSizeW;
+        private int mImgSizeH;
         private final static float FACE_WIDTH = 1.2f;
         private final static float FACE_HEIGHT = 1.2f;
-        private final static float FACE_HEIGHT_RATIO = .3f;
+        private final static float FACE_HEIGHT_RATIO = .75f;
         private RecognitionCallback mRecognitionCallback;
 
-        public FaceImg(String imgDir, int imgSize, RecognitionCallback recognitionCallback) {
-            this(imgDir, imgSize);
+        public FaceImg(String imgDir, int imgSizeW, int imgSizeH, RecognitionCallback recognitionCallback) {
+            this(imgDir, imgSizeW, imgSizeH);
             mRecognitionCallback = recognitionCallback;
         }
 
-        public FaceImg(String imgDir, int imgSize) {
-        mImgSize = imgSize;
+        public FaceImg(String imgDir, int imgSizeW, int imgSizeH) {
+        mImgSizeW = imgSizeW;
+        mImgSizeH = imgSizeH;
 
             // Create new image in local storage
             try {
@@ -368,7 +371,7 @@ public class FaceRecognitionActivity extends Activity {
                 }
 
                 // Resize
-                faceImg = Bitmap.createScaledBitmap(faceImg, mImgSize, mImgSize, false);
+                faceImg = Bitmap.createScaledBitmap(faceImg, mImgSizeW, mImgSizeH, false);
             }
 
             return faceImg;
@@ -412,7 +415,7 @@ public class FaceRecognitionActivity extends Activity {
     //=================================================================
 
     public void onTestClick(View view) {
-        FaceImg faceImg = new FaceImg(TEST_IMG_DIR, FACE_IMG_SIZE, new RecognitionCallback(this));
+        FaceImg faceImg = new FaceImg(TEST_IMG_DIR, FACE_IMG_W, FACE_IMG_H, new RecognitionCallback(this));
         mCurFaceImg = faceImg;
         faceImg.capture();
 
